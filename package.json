@@ -1,0 +1,13 @@
+{
+  "name": "phantom-ledger",
+  "version": "1.0.0",
+  "description": "Serverless, account-free bookkeeping PWA — local-first, QR sync, voice entry, WhatsApp reports. Kiroween 2026, Frankenstein.",
+  "type": "module",
+  "license": "MIT",
+  "scripts": {
+    "test": "node --test tests/unit.test.mjs",
+    "smoke": "node tests/smoke.mjs",
+    "serve": "python3 -m http.server 8901",
+    "check": "node .kiro/hooks/scripts/check-on-save.mjs"
+  }
+}

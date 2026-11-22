@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#0d0b14">
+<meta name="description" content="Phantom Ledger — buku kas tanpa akun, tanpa server. Simpan lokal, sinkron lewat QR, isi lewat suara, lapor lewat WhatsApp.">
+<title>👻 Phantom Ledger — Buku Kas Hantu</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>👻</text></svg>">
+<link rel="stylesheet" href="src/styles.css">
+</head>
+<body>
+<header class="topbar">
+  <div class="brand">
+    <span class="ghost" aria-hidden="true">👻</span>
+    <div>
+      <h1>Phantom Ledger</h1>
+      <p class="tagline">Buku kas tanpa akun · tanpa server · tanpa jejak</p>
+    </div>
+  </div>
+  <div class="kas-chip">
+    <label for="kasNameInput">Kas</label>
+    <input id="kasNameInput" type="text" value="Kas RT 05" maxlength="60" aria-label="Nama kas">
+  </div>
+</header>
+
+<div id="offlineBanner" class="banner warn" hidden>⚠️ Penyimpanan IndexedDB tidak tersedia — data hanya tersimpan selama halaman ini terbuka.</div>
+<div id="voiceBanner" class="banner info" hidden></div>
+
+<main>
+  <section class="balance-card" aria-label="Saldo">
+    <div class="balance-label">Saldo saat ini</div>
+    <div class="balance-value" id="balanceValue">Rp 0</div>
+    <div class="balance-sub">
+      <span id="sumIn">⬆️ Masuk Rp 0</span>
+      <span id="sumOut">⬇️ Keluar Rp 0</span>
+      <span id="txnCount">0 transaksi</span>
+    </div>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="Menu utama">
+    <button class="tab active" data-tab="catat" role="tab">✏️ Catat</button>
+    <button class="tab" data-tab="suara" role="tab">🎙️ Suara</button>
+    <button class="tab" data-tab="sinkron" role="tab">🔳 Sinkron QR</button>
+    <button class="tab" data-tab="laporan" role="tab">📋 Laporan</button>
+    <button class="tab" data-tab="pengaturan" role="tab">⚙️ Pengaturan</button>
+  </nav>
+
+  <!-- ============ CATAT ============ -->
+  <section id="tab-catat" class="tabpage active">
+    <form id="txnForm" class="card" autocomplete="off">
+      <h2 id="formTitle">Tambah Transaksi</h2>
+      <input type="hidden" id="editId">
+      <div class="field-row">
+        <div class="field">
+          <label for="txnType">Jenis</label>
+          <select id="txnType">
+            <option value="out">⬇️ Pengeluaran</option>
+            <option value="in">⬆️ Pemasukan</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="txnAmount">Jumlah (Rp)</label>
+          <input id="txnAmount" type="text" inputmode="numeric" placeholder="50.000" required>
+        </div>
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="txnDate">Tanggal</label>
+          <input id="txnDate" type="date" required>
+        </div>
+        <div class="field">
+          <label for="txnCategory">Kategori <span id="catHint" class="hint"></span></label>
+          <select id="txnCategory"></select>
+        </div>
+      </div>
+      <div class="field">
+        <label for="txnNote">Catatan</label>
+        <input id="txnNote" type="text" placeholder="cth: bayar listrik PLN" maxlength="140">
+      </div>
+      <div class="form-actions">
+        <button type="submit" class="btn primary" id="saveBtn">💾 Simpan</button>
+        <button type="button" class="btn ghost-btn" id="cancelEditBtn" hidden>Batal</button>
+      </div>
+      <p id="formError" class="error" role="alert" hidden></p>
+    </form>
+
+    <div class="card filters">
+      <label>Bulan <input type="month" id="filterMonth"></label>
+      <label>Jenis
+        <select id="filterType">
+          <option value="all">Semua</option>
+          <option value="in">Pemasukan</option>
+          <option value="out">Pengeluaran</option>
+        </select>
+      </label>
+      <label>Kategori <select id="filterCategory"><option value="all">Semua</option></select></label>
+      <button class="btn small" id="clearFiltersBtn" type="button">Reset</button>
+    </div>
+
+    <ul id="txnList" class="txn-list" aria-live="polite"></ul>
+    <p id="emptyState" class="empty">Belum ada transaksi. Catat yang pertama di atas 👆</p>
+  </section>
+
+  <!-- ============ SUARA ============ -->
+  <section id="tab-suara" class="tabpage">
+    <div class="card voice-card">
+      <h2>🎙️ Catat Lewat Suara</h2>
+      <p>Ucapkan seperti: <em>“pengeluaran lima puluh ribu untuk listrik”</em> atau
+      <em>“pemasukan dua juta iuran warga”</em>.</p>
+      <button id="voiceBtn" class="btn primary big" type="button">🎙️ Mulai Bicara</button>
+      <p id="voiceStatus" class="voice-status" aria-live="polite">Ketuk tombol, lalu bicara.</p>
+      <div id="voiceDraft" class="voice-draft" hidden>
+        <h3>Draft dari suara:</h3>
+        <p id="voiceTranscript" class="transcript"></p>
+        <dl>
+          <dt>Jenis</dt><dd id="draftType"></dd>
+          <dt>Jumlah</dt><dd id="draftAmount"></dd>
+          <dt>Kategori</dt><dd id="draftCategory"></dd>
+          <dt>Catatan</dt><dd id="draftNote"></dd>
+        </dl>
+        <div class="form-actions">
+          <button id="voiceConfirmBtn" class="btn primary" type="button">✅ Simpan Transaksi Ini</button>
+          <button id="voiceDiscardBtn" class="btn ghost-btn" type="button">Buang</button>
+        </div>
+      </div>
+      <p id="voiceError" class="error" role="alert" hidden></p>
+    </div>
+  </section>
+
+  <!-- ============ SINKRON ============ -->
+  <section id="tab-sinkron" class="tabpage">
+    <div class="card">
+      <h2>🔳 Sinkron Hantu — tanpa server</h2>
+      <p>Tampilkan kode QR di perangkat ini, pindai dengan perangkat lain.
+      Tidak ada akun, tidak ada server, tidak ada data yang keluar kecuali
+      lewat kode yang <em>kamu</em> tampilkan.</p>
+      <div class="form-actions">
+        <button id="exportBtn" class="btn primary" type="button">📤 Buat Kode QR Ekspor</button>
+      </div>
+      <div id="qrBox" class="qr-box" hidden>
+        <div id="qrCode" class="qr-code" aria-label="Kode QR ekspor"></div>
+        <p id="qrMeta" class="qr-meta"></p>
+        <div class="form-actions">
+          <button id="qrPrevBtn" class="btn small" type="button">◀ Sebelumnya</button>
+          <button id="qrNextBtn" class="btn small" type="button">Berikutnya ▶</button>
+          <label class="auto-adv"><input type="checkbox" id="qrAutoAdv"> Putar otomatis</label>
+        </div>
+      </div>
+      <p id="exportError" class="error" role="alert" hidden></p>
+    </div>
+
+    <div class="card">
+      <h2>📥 Terima / Impor</h2>
+      <p>Tempel potongan kode QR (teks <code>PL1.…</code>), unggah file
+      <code>.phantom.json</code>, atau pindai dengan kamera.</p>
+      <div class="form-actions">
+        <button id="scanBtn" class="btn" type="button">📷 Pindai dengan Kamera</button>
+      </div>
+      <video id="scanVideo" class="scan-video" playsinline hidden></video>
+      <p id="scanStatus" class="voice-status" aria-live="polite"></p>
+      <div class="field">
+        <label for="importText">Tempel kode di sini (satu bagian per baris)</label>
+        <textarea id="importText" rows="4" placeholder="PL1.0.1.…"></textarea>
+      </div>
+      <div class="form-actions">
+        <button id="importPasteBtn" class="btn primary" type="button">🔍 Periksa &amp; Gabungkan</button>
+        <label class="btn file-btn">📁 Pilih File <input id="importFile" type="file" accept=".json,.txt,.phantom.json" hidden></label>
+      </div>
+      <div id="importPreview" class="import-preview" hidden>
+        <h3>Hasil pemeriksaan</h3>
+        <p id="importSummary"></p>
+        <div class="form-actions">
+          <button id="importConfirmBtn" class="btn primary" type="button">✅ Gabungkan Sekarang</button>
+          <button id="importCancelBtn" class="btn ghost-btn" type="button">Batal</button>
+        </div>
+      </div>
+      <p id="importError" class="error" role="alert" hidden></p>
+    </div>
+  </section>
+
+  <!-- ============ LAPORAN ============ -->
+  <section id="tab-laporan" class="tabpage">
+    <div class="card">
+      <h2>📋 Laporan Bulanan</h2>
+      <label>Bulan <input type="month" id="reportMonth"></label>
+      <div class="report-box" id="reportBox">
+        <div class="report-line"><span>Saldo awal</span><strong id="repOpening">Rp 0</strong></div>
+        <div class="report-line"><span>⬆️ Pemasukan</span><strong id="repIn">Rp 0</strong></div>
+        <div class="report-line"><span>⬇️ Pengeluaran</span><strong id="repOut">Rp 0</strong></div>
+        <div class="report-line total"><span>💵 Saldo akhir</span><strong id="repClosing">Rp 0</strong></div>
+      </div>
+      <h3>Per Kategori</h3>
+      <ul id="repCategories" class="cat-list"></ul>
+      <h3>Transaksi Terbesar</h3>
+      <ol id="repTop" class="top-list"></ol>
+      <div class="form-actions">
+        <button id="copyReportBtn" class="btn primary" type="button">📋 Salin untuk WhatsApp</button>
+        <button id="csvBtn" class="btn" type="button">⬇️ Unduh CSV</button>
+      </div>
+      <p id="reportStatus" class="voice-status" aria-live="polite"></p>
+      <details>
+        <summary>Lihat teks laporan</summary>
+        <pre id="reportText" class="report-text"></pre>
+      </details>
+    </div>
+  </section>
+
+  <!-- ============ PENGATURAN ============ -->
+  <section id="tab-pengaturan" class="tabpage">
+    <div class="card">
+      <h2>⚙️ Aturan Kategori Otomatis</h2>
+      <p>Jika catatan mengandung kata kunci, kategorinya terisi otomatis.
+      Aturan pertama yang cocok menang. Aturan ikut tersinkron lewat QR.</p>
+      <ul id="ruleList" class="rule-list"></ul>
+      <form id="ruleForm" class="rule-form">
+        <input id="ruleKeyword" type="text" placeholder="kata kunci, cth: galon" required maxlength="40">
+        <input id="ruleCategory" type="text" placeholder="kategori, cth: Air" required maxlength="30">
+        <button class="btn small primary" type="submit">+ Tambah Aturan</button>
+      </form>
+    </div>
+    <div class="card">
+      <h2>🗑️ Zona Berbahaya</h2>
+      <p>Menghapus semua transaksi di perangkat ini. Tidak bisa dibatalkan —
+      ekspor dulu lewat QR kalau datanya penting.</p>
+      <button id="wipeBtn" class="btn danger" type="button">Hapus Semua Data</button>
+    </div>
+    <div class="card about">
+      <h2>👻 Tentang</h2>
+      <p>Phantom Ledger v1.0 — buku kas hantu. Data hanya di perangkat ini.
+      Tidak ada akun, tidak ada server, tidak ada pelacakan.</p>
+      <p>Dibuat untuk Kiroween 2026 (kategori Frankenstein) dengan Kiro.</p>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <p>👻 Phantom Ledger — data hanya di perangkat ini · tanpa akun · tanpa server</p>
+</footer>
+
+<script src="src/qrcode.min.js"></script>
+<script type="module" src="src/app.js"></script>
+<script>
+  if ("serviceWorker" in navigator) {
+    window.addEventListener("load", () => {
+      navigator.serviceWorker.register("sw.js").catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

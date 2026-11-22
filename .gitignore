@@ -1,0 +1,4 @@
+# Never ignore .kiro/ — Kiroween rules require it committed.
+node_modules/
+demo/.video-work/
+.DS_Store
