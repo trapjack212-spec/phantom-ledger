@@ -66,7 +66,9 @@ def audio_duration(mp3):
 
 
 def main():
-    from gtts import gTTS
+    # gTTS is only a fallback (edge-tts is primary); import it lazily so a
+    # missing gtts install does not break a rebuild when narration files
+    # already exist.
 
     segments = []
     for i, scene in enumerate(SCENES):
@@ -120,6 +122,7 @@ def main():
                 time.sleep(5 * (attempt + 1))
             if not made:
                 try:
+                    from gtts import gTTS
                     gTTS(text=scene["narration"], lang="id").save(str(mp3))
                     made = mp3.stat().st_size > 0
                 except Exception as e:

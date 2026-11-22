@@ -1,9 +1,10 @@
 # Demo Video — Script & Storyboard
 
 Target: under 3 minutes (Devpost limit). Final video:
-`demo/phantom-ledger-demo.mp4` (36 detik, 720×1280 portrait, captioned —
-narasi TTS gagal di sandbox, lihat catatan di bawah — dibuat dari
-screenshot asli + ffmpeg, tanpa alat video generatif).
+`demo/phantom-ledger-demo.mp4` (79.7 detik, 720×1280 portrait, captioned +
+narasi Bahasa Indonesia — dibuat dari screenshot asli + ffmpeg, tanpa alat
+video generatif). Narasi memakai `/opt/hatch/bin/tts` (suara MAI_03),
+di-render ulang 2026-11-23 setelah TTS online gagal di sandbox.
 
 ## Narration script (Bahasa Indonesia)
 
@@ -35,7 +36,13 @@ screenshot asli + ffmpeg, tanpa alat video generatif).
 
 Rebuild: `python3 demo/build-video.py` (needs edge-tts/gTTS + ffmpeg).
 
-> Catatan jujur (2026-11-22): di sandbox ini kedua layanan TTS gagal —
+> UPDATE (2026-11-23): narasi SUDAH terisi — di-render ulang dengan
+> `/opt/hatch/bin/tts` (suara narator MAI_03, Bahasa Indonesia) karena
+> kedua layanan TTS online gagal di sandbox. Video final 79.7 detik
+> (masih di bawah batas 3 menit), audio terverifikasi (mean −22.1 dB).
+> Catatan lama di bawah ini hanya riwayat kenapa video pertama bisu.
+>
+> Catatan lama (2026-11-22): di sandbox ini kedua layanan TTS gagal —
 > gTTS mengembalikan 429 (rate-limit dari IP sandbox) dan edge-tts gagal
 > TLS lewat proxy sandbox — sehingga video yang dihasilkan memakai trek
 > audio senyap dan mengandalkan caption di tiap scene. Naskah narasi di
