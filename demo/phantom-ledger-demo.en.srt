@@ -1,0 +1,66 @@
+1
+00:00:00,000 --> 00:00:10,600
+Phantom Ledger. A ghost ledger —
+no account, no server, no trace.
+Built for Kiroween 2026, Frankenstein category.
+
+2
+00:00:10,700 --> 00:00:14,700
+Community treasurers — for neighbourhoods,
+mosques, or savings groups — usually track
+cash in a paper notebook.
+
+3
+00:00:14,700 --> 00:00:20,000
+Phantom Ledger replaces it with an app
+that lives entirely on your phone.
+No sign-up, no login, no internet.
+
+4
+00:00:20,000 --> 00:00:26,700
+Everything is stored locally, and categories
+fill in automatically. Type "pay electricity",
+and the category is already Electricity.
+
+5
+00:00:26,800 --> 00:00:32,000
+Hands busy? Just speak. Say:
+expense, fifty thousand rupiah, for electricity.
+
+6
+00:00:32,000 --> 00:00:39,700
+The app turns your voice into a transaction draft —
+amount, type, and category already filled in.
+You review it first, then save. Voice never writes directly.
+
+7
+00:00:39,800 --> 00:00:46,000
+This is the ghostliest part. There's no server —
+so how do you move phones? With a QR code.
+
+8
+00:00:46,000 --> 00:00:55,100
+One phone shows the code, the other scans it —
+the whole ledger moves over, and matching records
+merge automatically, with no duplicates.
+No account, no cable, no cloud.
+
+9
+00:00:55,200 --> 00:01:01,500
+At month's end, the report is ready in one tap.
+Opening balance, income, expenses, per category.
+
+10
+00:01:01,500 --> 00:01:08,200
+Copied as WhatsApp text for the neighbourhood group,
+or downloaded as CSV for the archive.
+
+11
+00:01:08,300 --> 00:01:13,500
+Phantom Ledger. Five technologies that
+should never have met, stitched into one ledger.
+
+12
+00:01:13,500 --> 00:01:19,600
+Built with Kiro: specs, steering, and hooks.
+Try it yourself — all the code is on GitHub.
